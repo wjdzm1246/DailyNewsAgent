@@ -1,0 +1,152 @@
+content_harvesting_task:
+  description: >
+    Collect recent news articles based on {topic}.
+    You will be given a topic and a language context (either "us" or "ko").
+
+    Behavior based on language context:
+    - If language is "en":
+        - Extract English article content
+        - Translate to Korean
+        - Generate English vocabulary list with IPA
+    - If language is "ko":
+        - Extract Korean article content
+        - Translate to English
+        - Generate Korean vocabulary list with IPA
+
+    Steps include:
+    1. Use the search_tool to search for recent news articles about {topic}
+    2. From the search results, identify URLs from credible sources.
+    3. For each link retrieved, use `web_search_tool` to extract article content.
+
+    4. **IMPORTANT: Only select actual article pages, not topic hubs or tag listings**
+      You must filter out any URLs that are likely to be:
+      - Topic/tag/section index pages (e.g., URLs containing "/tag/", "/topic/", "/hub/", "/section/", "/category/")
+      - Pages with no unique headline or timestamp
+      - Pages that only contain a list of other stories or links
+      ✅ Acceptable article URLs:
+      - Should contain a full article with body text
+      - Should have a clear headline and publication date
+      - Often include slugs like `/2023/10/.../story-title` or unique story IDs
+      These are topic collections, not individual articles.
+
+    5. For each **accepted** article URL:
+      - Use the web_search_tool to extract the full article content from the URL
+      - Extract metadata: title, url, date and markdown.
+
+    6. Apply intelligent filtering to remove:
+      - Articles shorter than 100 words
+      - Articles older than 48 hours (unless specifically relevant)
+      - Pages that failed to scrape or contain no substantial content
+
+    7. Classify each article into appropriate topic categories (Tech, Politics, Business, Science, Health, Sports, International, etc.)
+
+    8. Assign credibility scores (1-10) based on source reputation and content quality
+
+    9. Assign relevance scores (1-10) based on how well the article matches the requested {topic}
+
+    10. Additionally, provide a full Korean translation for each article and a vocabulary list (10–15 key words with IPA + meaning).
+
+  expected_output: >
+    You MUST output a complete markdown document in the following format.
+    Do NOT write meta-summaries like "the above document..."
+    Do NOT skip article sections.
+     Use the correct output structure based on the `language` input:
+
+    ----------------------------------------------------------------------------------
+    ## If `language` is "us":
+    ----------------------------------------------------------------------------------
+
+    # News Articles Collection: {topic}
+
+    **Collection Summary**
+    - Total articles found:
+    - Articles after filtering:
+    - Duplicates removed:
+    - Sources accessed:
+    - Search queries used:
+    - Search timestamp:
+
+    ---
+
+    ## Article 1: [Article Headline]
+
+    **Source:**
+    **Date:**
+    **URL:**
+    **Category:**
+    **Credibility Score:**
+    **Relevance Score:**
+
+    ### Article Content (English)
+    [full scraped article text here, wrapped at 80 chars]
+
+    ## 기사 1: [기사 제목 한국어 번역]
+
+    **출처:**  
+    **날짜:**  
+    **URL:**  
+    **카테고리:**  
+    **신뢰도 점수:**  
+    **관련성 점수:** 
+
+    ### 기사 본문 (Korean Translation)
+    [full translated article text here]
+
+    ### Vocabulary List (English → Korean)
+    - word [IPA]: meaning
+    - ...
+
+    ---
+
+    ----------------------------------------------------------------------------------
+    ## If `language` is "ko":
+    ----------------------------------------------------------------------------------
+
+    # 뉴스 기사 모음: {topic}
+
+    **수집 요약**
+    - 총 수집 기사 수:
+    - 필터링 후 기사 수:
+    - 중복 제거 수:
+    - 접근한 소스:
+    - 사용된 검색 쿼리:
+    - 수집 시각:
+
+    ---
+
+    ## 기사 1: [기사 제목]
+
+    **출처:**  
+    **날짜:**  
+    **URL:**  
+    **카테고리:**  
+    **신뢰도 점수:**  
+    **관련성 점수:**  
+
+    ### 기사 본문 (Korean)
+    [스크랩된 한국어 기사 본문, 줄바꿈 80자 기준]
+
+    ## Article 1: [Translated English Headline]
+
+    **Source:**  
+    **Date:**  
+    **URL:**  
+    **Category:**  
+    **Credibility Score:**  
+    **Relevance Score:**  
+
+    ### Article Content (English Translation)
+    [full translated article text here]
+
+    ### Vocabulary List (Korean → English)
+    - 단어 [IPA]: 의미
+    - ...
+
+    ---
+
+    [Repeat for each article]
+    
+  agent: news_hunter_agent
+  markdown: true
+  output_file: output/content_harvest.md
+  create_directory: true
