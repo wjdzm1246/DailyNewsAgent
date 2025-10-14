@@ -47,10 +47,13 @@ content_harvesting_task:
     10. Additionally, provide a full Korean translation for each article and a vocabulary list (10–15 key words with IPA + meaning).
 
   expected_output: >
+    Provide a list (at least 5) of fully extracted news articles 
+    with metadata, translations, and vocabulary lists. 
+    Even if some articles are partial, include what can be extracted.
     You MUST output a complete markdown document in the following format.
     Do NOT write meta-summaries like "the above document..."
     Do NOT skip article sections.
-     Use the correct output structure based on the `language` input:
+    Use the correct output structure based on the `language` input:
 
     ----------------------------------------------------------------------------------
     ## If `language` is "us":
@@ -149,4 +152,136 @@ content_harvesting_task:
   agent: news_hunter_agent
   markdown: true
   output_file: output/content_harvest.md
+  create_directory: true
+
+final_report_assembly_task:
+  description: >
+    Create the final, publication-ready markdown news briefing by combining all 
+    previous work into a professional, cohesive report suitable for daily publication.
+    You will be given a target language context (either "en" or "ko").
+
+    You MUST output the complete markdown news briefing itself.
+    Do NOT write explanations like "the above document..." or meta-summaries.
+    The output must include all sections, fully formatted in markdown,
+    with both English and Korean versions when applicable.
+
+
+    Behavior based on language context:
+    - If language is "us":
+        - Assemble full English news briefing
+        - Translate to Korean
+    - If language is "ko":
+        - Assemble full Korean news briefing
+        - Translate to English
+
+    Assembly process:
+    1. Follow the editorial plan from the curation task for structure and flow
+    2. Apply appropriate summary levels for each story based on editorial decisions
+    3. Include editorial transitions and section introductions from the curation plan
+    4. Add professional opening that summarizes the day's key developments
+    5. Create closing section that ties together themes and looks ahead
+    6. Ensure consistent formatting and professional presentation throughout
+    7. Include proper attribution and source references where appropriate
+    8. Translate the completed report into the opposite language (en ↔ ko)
+    9. Ensure both language versions maintain the same structure and section flow
+
+  expected_output: >
+    You MUST output a complete markdown document with both language versions, 
+    following this format based on the `language` input:
+
+    ----------------------------------------------------------------------------------
+    ## If `language` is "us":
+    ----------------------------------------------------------------------------------
+
+    # Daily News Briefing: {topic}
+
+    **Date:**  
+    **Generated:**  
+    **Stories Covered:**  
+
+    ## Executive Summary
+    [English executive summary text]
+
+    ---
+
+    ## 🚨 Today's Lead Story
+    ### [English headline]
+    [English summary]
+    **Source:** [Publication] | **Read more:** [Link](url)
+
+    ---
+
+    [Continue with all sections in English...]
+
+    ---
+
+    # 데일리 뉴스 브리핑: {topic}
+
+    **날짜:**  
+    **생성 시각:**  
+    **포함된 기사 수:**  
+
+    ## 요약
+    [위 Executive Summary의 한국어 번역]
+
+    ---
+
+    ## 🚨 오늘의 주요 기사
+    ### [한국어 제목]
+    [한국어 요약문]
+    **출처:** [매체명] | **원문 보기:** [링크](url)
+
+    ---
+
+    [모든 섹션의 번역 버전 포함...]
+
+    ----------------------------------------------------------------------------------
+    ## If `language` is "ko":
+    ----------------------------------------------------------------------------------
+
+    # 데일리 뉴스 브리핑: {topic}
+
+    **날짜:**  
+    **생성 시각:**  
+    **포함된 기사 수:**  
+
+    ## 요약
+    [한국어 요약문]
+
+    ---
+
+    ## 🚨 오늘의 주요 기사
+    ### [한국어 기사 제목]
+    [기사 요약문]
+    **출처:** [매체명] | **원문 보기:** [링크](url)
+
+    ---
+
+    [다른 섹션들 계속...]
+
+    ---
+
+    # Daily News Briefing: {topic}
+
+    **Date:**  
+    **Generated:**  
+    **Stories Covered:**  
+
+    ## Executive Summary
+    [English translation of the above summary]
+
+    ---
+
+    ## 🚨 Today's Lead Story
+    ### [English headline]
+    [English translation of the summary]
+    **Source:** [Publication] | **Read more:** [Link](url)
+
+    ---
+
+    [Continue with full translated English version...]
+
+  agent: curator_agent
+  markdown: true
+  output_file: output/final_report.md
   create_directory: true
