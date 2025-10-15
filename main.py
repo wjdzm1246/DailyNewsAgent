@@ -23,11 +23,23 @@ class NewsReaderAgent:
             tools=[search_tool, web_search_tool],
         )
 
+    @agent
+    def curator_agent(self):
+        return Agent(
+            config=self.agents_config["curator_agent"],
+        )
+
     @task
     def content_harvesting_task(self):
         """Task to collect raw news content."""
         return Task(
             config=self.tasks_config["content_harvesting_task"],
+        )
+
+    @task
+    def final_report_assembly_task(self):
+        return Task(
+            config=self.tasks_config["final_report_assembly_task"],
         )
 
     @crew
@@ -38,6 +50,7 @@ class NewsReaderAgent:
             agents=self.agents,
             verbose=True,
         )
+
 
 def redirect_logs(filename: str = "crew_run.log"):
     """Redirect stdout and stderr to a log file."""
@@ -51,8 +64,8 @@ def build_news_query(mode: str = "us") -> str:
     """Builds a search query string for today's top news based on mode."""
     today = datetime.today()
     today_str_full = today.strftime("%B %d, %Y")
-    today_dash = today.strftime("%Y/%m/%d")
-    today_bar = today.strftime("%Y-%m-%d")
+    # today_dash = today.strftime("%Y/%m/%d")
+    # today_bar = today.strftime("%Y-%m-%d")
 
     if mode == "ko":
         sites = ["yna.co.kr", "hani.co.kr", "khan.co.kr"]
@@ -61,13 +74,17 @@ def build_news_query(mode: str = "us") -> str:
             f"site:{' OR site:'.join(sites)}"
         )
     else:
-        sites = ["reuters.com", "npr.org"]
+        # sites = ["reuters.com", "npr.org"]
+        sites = ["npr.org","reuters.com"]
         query = (
             f"Top breaking US news {today_str_full} "
-            f"site:{sites[0]} inurl:/{today_bar}/ OR "
-            f"site:{sites[1]} inurl:/{today_dash}/"
+            # f"site:{sites[0]} inurl:/{today_bar}/ OR "
+            # f"site:{sites[1]} inurl:/{today_dash}/"
+            f"site:{sites[0]} OR "
+            f"site:{sites[1]}"
         )
     return query
+
 
 def main():
     """Main execution entry point."""
@@ -80,14 +97,14 @@ def main():
     query = build_news_query(news_type)
 
     # Prepare inputs for the crew
-    inputs = {
+    input = {
         "topic": query,
         "language": "us" if news_type == "us" else "ko"
     }
 
     # Run the Crew
     crew_instance = NewsReaderAgent().crew()
-    result = crew_instance.kickoff(inputs=inputs)
+    result = crew_instance.kickoff(inputs=input)
 
     log_file.close()
     return result
@@ -95,4 +112,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
